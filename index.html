@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel de Companhias — 1º BPCHQ ROTA</title>
 
-  <!-- Supabase JS (v2) -->
+  <!-- Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -23,9 +23,7 @@
       --success: #4ade80;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -34,16 +32,12 @@
       color: var(--text);
     }
 
-    .app {
-      display: flex;
-      min-height: 100vh;
-    }
+    .app { display: flex; min-height: 100vh; }
 
     /* SIDEBAR */
-
     .sidebar {
       width: 260px;
-      background: linear-gradient(180deg, #020617 0%, #020617 60%, #020617 100%);
+      background: #020617;
       border-right: 1px solid var(--border-subtle);
       padding: 20px 16px;
       display: flex;
@@ -51,52 +45,26 @@
       gap: 18px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .brand { display: flex; align-items: center; gap: 10px; }
     .brand-icon {
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border-radius: 999px;
       border: 2px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 16px;
-      color: var(--accent);
-      background: radial-gradient(circle, rgba(250, 204, 21, 0.15), transparent);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: var(--accent);
     }
-
-    .brand-text-title {
-      font-size: 15px;
-      font-weight: bold;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .brand-text-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    .brand-text-title { font-size: 15px; font-weight: bold; letter-spacing: .08em; }
+    .brand-text-sub { font-size: 11px; color: var(--text-muted); }
 
     .sidebar-section-title {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: .12em;
       color: var(--text-muted);
       margin-top: 6px;
-      margin-bottom: 4px;
     }
 
-    .nav-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .nav-group { display: flex; flex-direction: column; gap: 6px; }
 
     .nav-btn {
       border: none;
@@ -110,31 +78,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: background 0.1s, color 0.1s, transform 0.05s;
+      transition: .1s;
     }
-
-    .nav-btn span.label {
-      flex: 1;
-    }
-
-    .nav-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      color: var(--accent);
-      background: rgba(250, 204, 21, 0.04);
-    }
-
-    .nav-btn:hover {
-      background: rgba(15, 23, 42, 0.9);
-    }
-
     .nav-btn.active {
       background: var(--accent-soft);
       color: var(--accent);
-      border: 1px solid rgba(250, 204, 21, 0.4);
-      transform: translateX(1px);
+      border: 1px solid rgba(250,204,21,.4);
     }
 
     .sidebar-footer {
@@ -146,1016 +95,430 @@
     }
 
     /* MAIN */
-
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+    .main { flex: 1; display: flex; flex-direction: column; }
 
     .topbar {
       padding: 16px 20px;
       border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(15,23,42,.9);
       backdrop-filter: blur(12px);
-      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.8));
     }
+    .topbar-title { font-size: 18px; font-weight: 600; }
+    .topbar-sub { font-size: 12px; color: var(--text-muted); }
 
-    .topbar-title {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .topbar-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .topbar-right {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-align: right;
-    }
-
+    .topbar-right { font-size: 12px; color: var(--text-muted); text-align: right; }
     .tag-pill {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
+      display: inline-flex; border-radius: 999px;
       border: 1px solid var(--border-subtle);
-      padding: 2px 8px;
-      margin-top: 4px;
-      font-size: 11px;
+      padding: 2px 8px; font-size: 11px;
     }
+    .tag-pill strong { color: var(--accent); margin-right: 4px; }
 
-    .tag-pill strong {
-      color: var(--accent);
-      margin-right: 4px;
-    }
-
-    .content {
-      padding: 20px;
-      flex: 1;
-      overflow-y: auto;
-    }
-
+    .content { padding: 20px; flex: 1; overflow-y: auto; }
     .section-title {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
+      font-size: 14px; text-transform: uppercase;
+      letter-spacing: .18em; color: var(--text-muted);
       margin-bottom: 12px;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 16px; }
 
     .card {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15,23,42,.9);
       border-radius: 14px;
       border: 1px solid var(--border-subtle);
-      padding: 16px 16px 14px;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+      padding: 16px;
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
+    .card-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .card-title { font-size: 14px; font-weight: 600; }
+    .card-subtitle { font-size: 12px; color: var(--text-muted); }
 
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .card-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .stat-number {
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    .stat-number { font-size: 22px; font-weight: 700; }
 
     .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      padding: 2px 7px;
+      border-radius: 999px; padding: 2px 7px;
+      background: rgba(250,204,21,.05);
+      color: var(--accent);
       font-size: 10px;
-      color: var(--accent);
-      background: rgba(250, 204, 21, 0.05);
-    }
-
-    .badge.status-pendente { color: #fbbf24; }
-    .badge.status-analise { color: #60a5fa; }
-    .badge.status-resolvido { color: var(--success); }
-    .badge.status-arquivado { color: #9ca3af; }
-
-    .btn {
-      border: none;
-      border-radius: 999px;
-      padding: 7px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      background: #111827;
-      color: var(--text);
       border: 1px solid var(--border-subtle);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
     }
 
-    .btn.primary {
-      background: var(--accent-soft);
-      border-color: rgba(250, 204, 21, 0.7);
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .btn.danger {
-      border-color: rgba(248, 113, 113, 0.7);
-      color: var(--danger);
-    }
-
-    .btn.sm {
-      padding: 4px 8px;
-      font-size: 11px;
-    }
-
-    .btn + .btn {
-      margin-left: 6px;
-    }
-
-    .flex-row {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .flex-1 {
-      flex: 1 1 0;
-      min-width: 0;
-    }
-
-    .field-group {
-      margin-bottom: 10px;
-    }
-
-    .field-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-    }
-
-    .input, .select, .textarea {
-      width: 100%;
-      border-radius: 9px;
-      border: 1px solid #334155;
-      background: #020617;
-      color: var(--text);
-      padding: 8px 9px;
-      font-size: 13px;
-    }
-
-    .textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-
-    .table-wrapper {
-      margin-top: 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border-subtle);
-      overflow: hidden;
-      background: rgba(15, 23, 42, 0.8);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-
-    thead {
-      background: #020617;
-    }
-
-    th, td {
-      padding: 8px 10px;
-      border-bottom: 1px solid #111827;
-      text-align: left;
-    }
-
-    th {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-    }
-
-    tbody tr:hover {
-      background: rgba(15, 23, 42, 0.9);
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 8px 10px; border-bottom: .5px solid #111827; text-align: left; }
+    thead { background: #020617; }
+    tbody tr:hover { background: rgba(15,23,42,.9); }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      display: inline-block;
-      margin-right: 4px;
+      width: 8px; height: 8px; border-radius: 999px;
+      display: inline-block; margin-right: 4px;
     }
+    .status-dot.Pendente { background: #fbbf24; }
+    .status-dot["Em análise"] { background: #60a5fa; }
+    .status-dot.Resolvido { background: #4ade80; }
+    .status-dot.Arquivado { background: #9ca3af; }
 
-    .status-dot.pendente { background: #fbbf24; }
-    .status-dot.analise { background: #60a5fa; }
-    .status-dot.resolvido { background: var(--success); }
-    .status-dot.arquivado { background: #9ca3af; }
-
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-    }
-
-    @media (max-width: 860px) {
-      .app {
-        flex-direction: column;
-      }
-      .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-subtle);
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 10px;
-      }
-      .sidebar-footer {
-        display: none;
-      }
-    }
+    .view { display: none; }
+    .view.active { display: block; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-icon">RT</div>
-        <div>
-          <div class="brand-text-title">1º BPCHQ ROTA</div>
-          <div class="brand-text-sub">Sistema interno de companhias</div>
-        </div>
-      </div>
 
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brand-icon">RT</div>
       <div>
-        <div class="sidebar-section-title">Painel</div>
-        <div class="nav-group">
-          <button class="nav-btn active" data-view="view-dashboard">
-            <span class="label">Visão Geral</span>
-            <span class="nav-badge">Resumo</span>
-          </button>
-          <button class="nav-btn" data-view="view-registros">
-            <span class="label">Registros</span>
-            <span class="nav-badge">Todos</span>
-          </button>
-        </div>
+        <div class="brand-text-title">1º BPCHQ ROTA</div>
+        <div class="brand-text-sub">Sistema interno de companhias</div>
       </div>
-
-      <div>
-        <div class="sidebar-section-title">Companhias</div>
-        <div class="nav-group">
-          <button class="nav-btn" data-view="view-cia-alfa">
-            <span class="label">Companhia Alfa</span>
-          </button>
-          <button class="nav-btn" data-view="view-cia-bravo">
-            <span class="label">Companhia Bravo</span>
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <div class="sidebar-section-title">Funções</div>
-        <div class="nav-group">
-          <button class="nav-btn" data-view="view-pa">
-            <span class="label">Praça Auxiliar</span>
-          </button>
-          <button class="nav-btn" data-view="view-sub">
-            <span class="label">Subcomando</span>
-          </button>
-          <button class="nav-btn" data-view="view-cmd">
-            <span class="label">Comandante</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="sidebar-footer">
-        Sistema interno — ROTA GTA RP<br />
-        <span style="color:var(--accent);">Uso exclusivo do batalhão.</span>
-      </div>
-    </aside>
-
-    <!-- MAIN -->
-    <div class="main">
-      <header class="topbar">
-        <div>
-          <div class="topbar-title" id="topbar-title">Visão Geral</div>
-          <div class="topbar-sub">Fluxo: Policial → PA → Sub → Cmd</div>
-        </div>
-        <div class="topbar-right">
-          Perfil de acesso:<br />
-          <select id="profile-select" class="select" style="width:auto;display:inline-block;margin-top:4px;min-width:190px;">
-            <option value="coordop">Maj Coordop (todas companhias)</option>
-            <option value="alfa">Companhia Alfa</option>
-            <option value="bravo">Companhia Bravo</option>
-          </select>
-          <br />
-          <span class="tag-pill"><strong>Modo</strong> RP Administrativo</span>
-        </div>
-      </header>
-
-      <main class="content">
-        <!-- DASHBOARD -->
-        <section id="view-dashboard" class="view active">
-          <div class="section-title">Situação das demandas</div>
-          <div class="grid" id="dashboard-cards">
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Pendentes</div>
-                  <div class="card-subtitle">Aguardando tratamento inicial</div>
-                </div>
-                <span class="badge status-pendente">Pendente</span>
-              </div>
-              <div class="stat-number" id="stat-pendente">0</div>
-              <div class="stat-label">Inclui solicitações recém-abertas.</div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Em análise / Escaladas</div>
-                  <div class="card-subtitle">Na mão do PA, Sub ou Cmd</div>
-                </div>
-                <span class="badge status-analise">Em fluxo</span>
-              </div>
-              <div class="stat-number" id="stat-analise">0</div>
-              <div class="stat-label">Demandas em tratamento pela hierarquia.</div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Resolvidas</div>
-                  <div class="card-subtitle">Casos encerrados</div>
-                </div>
-                <span class="badge status-resolvido">Resolvido</span>
-              </div>
-              <div class="stat-number" id="stat-resolvido">0</div>
-              <div class="stat-label">Inclui acordos internos e decisões finais.</div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Arquivados</div>
-                  <div class="card-subtitle">Para histórico e consulta</div>
-                </div>
-                <span class="badge status-arquivado">Arquivo</span>
-              </div>
-              <div class="stat-number" id="stat-arquivado">0</div>
-              <div class="stat-label">Registros mantidos apenas para histórico.</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- REGISTROS (GERAL) -->
-        <section id="view-registros" class="view">
-          <div class="section-title">Registros internos</div>
-          <div class="flex-row">
-            <div class="card flex-1">
-              <div class="card-header">
-                <div class="card-title">Novo registro</div>
-                <div class="card-subtitle">Abertura de demanda pelo policial ou superior</div>
-              </div>
-              <form id="form-novo-registro">
-                <div class="field-group">
-                  <div class="field-label">Nome do policial</div>
-                  <input class="input" name="officer_name" required placeholder="Ex.: Sd. Maggi" />
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Companhia</div>
-                  <select class="select" name="company" required id="company-select">
-                    <option value="Alfa">Companhia Alfa</option>
-                    <option value="Bravo">Companhia Bravo</option>
-                  </select>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Quem está abrindo?</div>
-                  <select class="select" name="origin_role" required>
-                    <option value="Policial">Policial</option>
-                    <option value="Praça Auxiliar">Praça Auxiliar</option>
-                    <option value="Subcomandante">Subcomandante</option>
-                    <option value="Comandante">Comandante</option>
-                  </select>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Descrição da ocorrência</div>
-                  <textarea class="textarea" name="description" required placeholder="Descreva o problema, conflito ou solicitação..."></textarea>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Seu nome / patente (para registro)</div>
-                  <input class="input" name="last_updated_by" placeholder="Ex.: Maj Coordop, 1º Sgt. Cordeiro..." />
-                </div>
-                <button type="submit" class="btn primary">Registrar demanda</button>
-              </form>
-            </div>
-
-            <div class="card flex-1">
-              <div class="card-header">
-                <div class="card-title">Filtros rápidos</div>
-                <div class="card-subtitle">Visualização conforme perfil e filtros</div>
-              </div>
-              <div class="field-group">
-                <div class="field-label">Status</div>
-                <select id="filter-status" class="select">
-                  <option value="todos">Todos</option>
-                  <option value="Pendente">Pendente</option>
-                  <option value="Em análise">Em análise</option>
-                  <option value="Resolvido">Resolvido</option>
-                  <option value="Arquivado">Arquivado</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <div class="field-label">Companhia</div>
-                <select id="filter-company" class="select">
-                  <option value="todas">Todas</option>
-                  <option value="Alfa">Alfa</option>
-                  <option value="Bravo">Bravo</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <div class="field-label">Buscar por nome / descrição</div>
-                <input id="filter-search" class="input" placeholder="Digite parte do nome ou texto..." />
-              </div>
-              <button type="button" class="btn" id="btn-clear-filters">Limpar filtros</button>
-            </div>
-          </div>
-
-          <div class="table-wrapper" style="margin-top:16px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Policial</th>
-                  <th>Cia</th>
-                  <th>Status</th>
-                  <th>Etapa</th>
-                  <th>Descrição</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-registros">
-                <!-- Preenchido via JS -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- COMPANHIA ALFA -->
-        <section id="view-cia-alfa" class="view">
-          <div class="section-title">Companhia Alfa</div>
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Demandas da Companhia Alfa</div>
-                <div class="card-subtitle">Tudo o que envolve policiais da Alfa</div>
-              </div>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Policial</th>
-                    <th>Status</th>
-                    <th>Etapa</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-cia-alfa"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- COMPANHIA BRAVO -->
-        <section id="view-cia-bravo" class="view">
-          <div class="section-title">Companhia Bravo</div>
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Demandas da Companhia Bravo</div>
-                <div class="card-subtitle">Tudo o que envolve policiais da Bravo</div>
-              </div>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Policial</th>
-                    <th>Status</th>
-                    <th>Etapa</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-cia-bravo"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- PRAÇA AUXILIAR -->
-        <section id="view-pa" class="view">
-          <div class="section-title">Praça Auxiliar</div>
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Demandas na mão do Praça Auxiliar</div>
-                <div class="card-subtitle">Ponto de entrada da hierarquia</div>
-              </div>
-              <span class="badge">Etapa: PA</span>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Policial</th>
-                    <th>Cia</th>
-                    <th>Status</th>
-                    <th>Descrição</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-pa"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- SUBCOMANDO -->
-        <section id="view-sub" class="view">
-          <div class="section-title">Subcomando</div>
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Demandas escaladas ao Subcomando</div>
-                <div class="card-subtitle">Casos que o PA não conseguiu resolver</div>
-              </div>
-              <span class="badge">Etapa: SUB</span>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Policial</th>
-                    <th>Cia</th>
-                    <th>Status</th>
-                    <th>Descrição</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-sub"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- COMANDANTE -->
-        <section id="view-cmd" class="view">
-          <div class="section-title">Comandante</div>
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Demandas escaladas ao Comandante</div>
-                <div class="card-subtitle">Última instância da companhia</div>
-              </div>
-              <span class="badge">Etapa: CMD</span>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Policial</th>
-                    <th>Cia</th>
-                    <th>Status</th>
-                    <th>Descrição</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-cmd"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </main>
     </div>
+
+    <div>
+      <div class="sidebar-section-title">Painel</div>
+      <div class="nav-group">
+        <button class="nav-btn active" data-view="view-dashboard">
+          Visão Geral
+        </button>
+        <button class="nav-btn" data-view="view-registros">
+          Registros
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-section-title">Companhias</div>
+      <div class="nav-group">
+        <button class="nav-btn" id="nav-cia-alfa" data-view="view-cia-alfa">
+          Companhia Alfa
+        </button>
+        <button class="nav-btn" id="nav-cia-bravo" data-view="view-cia-bravo">
+          Companhia Bravo
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-section-title">Funções</div>
+      <div class="nav-group">
+        <button class="nav-btn" data-view="view-pa">Praça Auxiliar</button>
+        <button class="nav-btn" data-view="view-sub">Subcomando</button>
+        <button class="nav-btn" data-view="view-cmd">Comandante</button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      Sistema interno ROTA — Uso exclusivo do batalhão
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <header class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Visão Geral</div>
+        <div class="topbar-sub">Fluxo: Policial → PA → Sub → Cmd</div>
+      </div>
+
+      <div class="topbar-right">
+        Perfil de acesso:<br>
+        <select id="profile-select" style="margin-top:4px;">
+          <option value="coordop">Maj Coordop (todas companhias)</option>
+          <option value="alfa">Companhia Alfa</option>
+          <option value="bravo">Companhia Bravo</option>
+        </select>
+        <br>
+        <span class="tag-pill"><strong>Modo</strong> RP Administrativo</span>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div class="section-title">Situação das demandas</div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Pendentes</div></div></div>
+            <div class="stat-number" id="stat-pendente">0</div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Em análise</div></div></div>
+            <div class="stat-number" id="stat-analise">0</div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Resolvidas</div></div></div>
+            <div class="stat-number" id="stat-resolvido">0</div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Arquivadas</div></div></div>
+            <div class="stat-number" id="stat-arquivado">0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTROS -->
+      <section id="view-registros" class="view">
+        <div class="section-title">Todos os registros</div>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr><th>Data</th><th>Policial</th><th>Cia</th><th>Status</th><th>Descrição</th></tr>
+            </thead>
+            <tbody id="tbody-registros"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ALFA -->
+      <section id="view-cia-alfa" class="view">
+        <div class="section-title">Companhia Alfa</div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Data</th><th>Policial</th><th>Status</th><th>Descrição</th></tr></thead>
+            <tbody id="tbody-cia-alfa"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- BRAVO -->
+      <section id="view-cia-bravo" class="view">
+        <div class="section-title">Companhia Bravo</div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Data</th><th>Policial</th><th>Status</th><th>Descrição</th></tr></thead>
+            <tbody id="tbody-cia-bravo"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PA -->
+      <section id="view-pa" class="view">
+        <div class="section-title">Praça Auxiliar</div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Data</th><th>Policial</th><th>Cia</th><th>Status</th><th>Descrição</th></tr></thead>
+            <tbody id="tbody-pa"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SUB -->
+      <section id="view-sub" class="view">
+        <div class="section-title">Subcomando</div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Data</th><th>Policial</th><th>Cia</th><th>Status</th><th>Descrição</th></tr></thead>
+            <tbody id="tbody-sub"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CMD -->
+      <section id="view-cmd" class="view">
+        <div class="section-title">Comandante</div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Data</th><th>Policial</th><th>Cia</th><th>Status</th><th>Descrição</th></tr></thead>
+            <tbody id="tbody-cmd"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
   </div>
+</div>
 
-  <script>
-    // --------- SUPABASE CONFIG ---------
-    const SUPABASE_URL = "https://ilonwkgtdszmpcjwlezc.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsb253a2d0ZHN6bXBjandsZXpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5NzQxMDIsImV4cCI6MjA3NTU1MDEwMn0.Cc-BtnHlXaGVCY6T6iXe0QA1tsfc17aX8lswEICvtw0";
+<script>
+/* -------------------------------------------------------------
+   CONFIG SUPABASE
+------------------------------------------------------------- */
+const SUPABASE_URL = "https://ilonwkgtdszmpcjwlezc.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsb253a2d0ZHN6bXBjandsZXpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5NzQxMDIsImV4cCI6MjA3NTU1MDEwMn0.Cc-BtnHlXaGVCY6T6iXe0QA1tsfc17aX8lswEICvtw0";
 
-    const { createClient } = supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let allReports = [];
+let allReports = [];
+let currentProfile = "coordop";
 
-    // perfil atual: 'coordop' | 'alfa' | 'bravo'
-    let currentProfile = "coordop";
+/* -------------------------------------------------------------
+   FUNÇÕES DE INTERFACE
+------------------------------------------------------------- */
+function updateCompanyNavByProfile() {
+  const btnAlfa = document.getElementById("nav-cia-alfa");
+  const btnBravo = document.getElementById("nav-cia-bravo");
 
-    function formatDate(isoString) {
-      if (!isoString) return "-";
-      const d = new Date(isoString);
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const year = d.getFullYear();
-      const hours = String(d.getHours()).padStart(2, "0");
-      const minutes = String(d.getMinutes()).padStart(2, "0");
-      return `${day}/${month}/${year} ${hours}:${minutes}`;
+  if (currentProfile === "coordop") {
+    btnAlfa.style.display = "";
+    btnBravo.style.display = "";
+    return;
+  }
+
+  if (currentProfile === "alfa") {
+    btnAlfa.style.display = "";
+    btnBravo.style.display = "none";
+
+    if (document.getElementById("view-cia-bravo").classList.contains("active")) {
+      document.getElementById("view-cia-bravo").classList.remove("active");
+      document.getElementById("view-cia-alfa").classList.add("active");
     }
+    return;
+  }
 
-    function statusClass(status) {
-      if (status === "Pendente") return "pendente";
-      if (status === "Em análise") return "analise";
-      if (status === "Resolvido") return "resolvido";
-      if (status === "Arquivado") return "arquivado";
-      return "pendente";
+  if (currentProfile === "bravo") {
+    btnAlfa.style.display = "none";
+    btnBravo.style.display = "";
+
+    if (document.getElementById("view-cia-alfa").classList.contains("active")) {
+      document.getElementById("view-cia-alfa").classList.remove("active");
+      document.getElementById("view-cia-bravo").classList.add("active");
     }
+  }
+}
 
-    // filtra registros pelo perfil selecionado
-    function filterByProfile(r) {
-      if (currentProfile === "alfa") return r.company === "Alfa";
-      if (currentProfile === "bravo") return r.company === "Bravo";
-      return true; // coordop vê tudo
-    }
+function switchView(viewId) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById(viewId).classList.add("active");
+}
 
-    function updateDashboardStats(list) {
-      let pendente = 0, analise = 0, resolvido = 0, arquivado = 0;
-      list.forEach(r => {
-        if (r.status === "Pendente") pendente++;
-        else if (r.status === "Em análise") analise++;
-        else if (r.status === "Resolvido") resolvido++;
-        else if (r.status === "Arquivado") arquivado++;
-      });
-      document.getElementById("stat-pendente").textContent = pendente;
-      document.getElementById("stat-analise").textContent = analise;
-      document.getElementById("stat-resolvido").textContent = resolvido;
-      document.getElementById("stat-arquivado").textContent = arquivado;
-    }
+/* -------------------------------------------------------------
+   FORMATAÇÃO
+------------------------------------------------------------- */
+function formatDate(dt) {
+  if (!dt) return "-";
+  const d = new Date(dt);
+  return (
+    String(d.getDate()).padStart(2, "0") + "/" +
+    String(d.getMonth()+1).padStart(2, "0") + "/" +
+    d.getFullYear() + " " +
+    String(d.getHours()).padStart(2, "0") + ":" +
+    String(d.getMinutes()).padStart(2, "0")
+  );
+}
 
-    function renderTables() {
-      const tbodyReg = document.getElementById("tbody-registros");
-      const tbodyAlfa = document.getElementById("tbody-cia-alfa");
-      const tbodyBravo = document.getElementById("tbody-cia-bravo");
-      const tbodyPA = document.getElementById("tbody-pa");
-      const tbodySub = document.getElementById("tbody-sub");
-      const tbodyCmd = document.getElementById("tbody-cmd");
+/* -------------------------------------------------------------
+   ATUALIZAÇÃO DAS TABELAS
+------------------------------------------------------------- */
+function renderTables() {
+  const tbodyReg = document.getElementById("tbody-registros");
+  const tbodyAlfa = document.getElementById("tbody-cia-alfa");
+  const tbodyBravo = document.getElementById("tbody-cia-bravo");
+  const tbodyPA = document.getElementById("tbody-pa");
+  const tbodySub = document.getElementById("tbody-sub");
+  const tbodyCmd = document.getElementById("tbody-cmd");
 
-      tbodyReg.innerHTML = "";
-      tbodyAlfa.innerHTML = "";
-      tbodyBravo.innerHTML = "";
-      tbodyPA.innerHTML = "";
-      tbodySub.innerHTML = "";
-      tbodyCmd.innerHTML = "";
+  tbodyReg.innerHTML = "";
+  tbodyAlfa.innerHTML = "";
+  tbodyBravo.innerHTML = "";
+  tbodyPA.innerHTML = "";
+  tbodySub.innerHTML = "";
+  tbodyCmd.innerHTML = "";
 
-      const statusFilter = document.getElementById("filter-status")?.value || "todos";
-      const companyFilter = document.getElementById("filter-company")?.value || "todas";
-      const searchFilter = (document.getElementById("filter-search")?.value || "").toLowerCase();
+  let visible = allReports;
 
-      // primeiro: aplica perfil
-      const visible = allReports.filter(filterByProfile);
+  if (currentProfile === "alfa") {
+    visible = visible.filter(r => r.company === "Alfa");
+  }
+  if (currentProfile === "bravo") {
+    visible = visible.filter(r => r.company === "Bravo");
+  }
 
-      const filtered = visible.filter(r => {
-        if (statusFilter !== "todos" && r.status !== statusFilter) return false;
-        if (companyFilter !== "todas" && r.company !== companyFilter) return false;
-        if (searchFilter) {
-          const txt = `${r.officer_name} ${r.description}`.toLowerCase();
-          if (!txt.includes(searchFilter)) return false;
-        }
-        return true;
-      });
+  visible.forEach(r => {
+    const tr = `<tr>
+      <td>${formatDate(r.created_at)}</td>
+      <td>${r.officer_name}</td>
+      <td>${r.company}</td>
+      <td><span class="status-dot ${r.status}"></span>${r.status}</td>
+      <td>${r.description}</td>
+    </tr>`;
 
-      filtered.forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>${r.company}</td>
-          <td>
-            <span class="status-dot ${statusClass(r.status)}"></span>${r.status}
-          </td>
-          <td>${r.current_stage}</td>
-          <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="escalarPA('${r.id}')">Escalar</button>
-            <button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>
-            <button class="btn sm danger" onclick="arquivar('${r.id}')">Arquivar</button>
-          </td>
-        `;
-        tbodyReg.appendChild(tr);
-      });
+    tbodyReg.innerHTML += tr;
 
-      // tabelas por companhia (dentro do que o perfil pode ver)
-      visible.filter(r => r.company === "Alfa").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>
-            <span class="status-dot ${statusClass(r.status)}"></span>${r.status}
-          </td>
-          <td>${r.current_stage}</td>
-          <td>${r.description}</td>
-        `;
-        tbodyAlfa.appendChild(tr);
-      });
+    if (r.company === "Alfa") tbodyAlfa.innerHTML += tr;
+    if (r.company === "Bravo") tbodyBravo.innerHTML += tr;
 
-      visible.filter(r => r.company === "Bravo").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>
-            <span class="status-dot ${statusClass(r.status)}"></span>${r.status}
-          </td>
-          <td>${r.current_stage}</td>
-          <td>${r.description}</td>
-        `;
-        tbodyBravo.appendChild(tr);
-      });
+    if (r.current_stage === "PA") tbodyPA.innerHTML += tr;
+    if (r.current_stage === "SUB") tbodySub.innerHTML += tr;
+    if (r.current_stage === "CMD") tbodyCmd.innerHTML += tr;
+  });
 
-      // PA
-      visible.filter(r => r.current_stage === "PA" && r.status !== "Arquivado").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>${r.company}</td>
-          <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
-          <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="marcarEmAnalise('${r.id}')">Em análise</button>
-            <button class="btn sm" onclick="escalarParaSub('${r.id}')">Escalar p/ Sub</button>
-          </td>
-        `;
-        tbodyPA.appendChild(tr);
-      });
+  // dashboard
+  document.getElementById("stat-pendente").innerText =
+    visible.filter(r => r.status === "Pendente").length;
+  document.getElementById("stat-analise").innerText =
+    visible.filter(r => r.status === "Em análise").length;
+  document.getElementById("stat-resolvido").innerText =
+    visible.filter(r => r.status === "Resolvido").length;
+  document.getElementById("stat-arquivado").innerText =
+    visible.filter(r => r.status === "Arquivado").length;
+}
 
-      // SUB
-      visible.filter(r => r.current_stage === "SUB" && r.status !== "Arquivado").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>${r.company}</td>
-          <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
-          <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>
-            <button class="btn sm" onclick="escalarParaCmd('${r.id}')">Escalar p/ Cmd</button>
-          </td>
-        `;
-        tbodySub.appendChild(tr);
-      });
+/* -------------------------------------------------------------
+   SUPABASE LOAD
+------------------------------------------------------------- */
+async function loadReports() {
+  const { data, error } = await sb
+    .from("rota_reports")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-      // CMD
-      visible.filter(r => r.current_stage === "CMD" && r.status !== "Arquivado").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>${r.company}</td>
-          <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
-          <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>
-            <button class="btn sm danger" onclick="arquivar('${r.id}')">Arquivar</button>
-          </td>
-        `;
-        tbodyCmd.appendChild(tr);
-      });
+  if (error) {
+    console.error(error);
+    return alert("Erro ao carregar registros.");
+  }
 
-      updateDashboardStats(visible);
-    }
+  allReports = data || [];
+  renderTables();
+}
 
-    async function loadReports() {
-      const { data, error } = await sb
-        .from("rota_reports")
-        .select("*")
-        .order("created_at", { ascending: false });
+/* -------------------------------------------------------------
+   EVENTOS
+------------------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const navBtns = document.querySelectorAll(".nav-btn");
+  const profileSelect = document.getElementById("profile-select");
 
-      if (error) {
-        console.error(error);
-        alert("Erro ao carregar registros do Supabase.");
-        return;
-      }
+  navBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      navBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
 
-      allReports = data || [];
-      renderTables();
-    }
-
-    async function createReport(payload) {
-      const { error } = await sb.from("rota_reports").insert(payload);
-      if (error) {
-        console.error(error);
-        alert("Erro ao criar registro.");
-        return false;
-      }
-      return true;
-    }
-
-    async function updateReport(id, fields) {
-      const { error } = await sb.from("rota_reports").update(fields).eq("id", id);
-      if (error) {
-        console.error(error);
-        alert("Erro ao atualizar registro.");
-        return false;
-      }
-      return true;
-    }
-
-    async function marcarEmAnalise(id) {
-      if (!(await updateReport(id, { status: "Em análise" }))) return;
-      await loadReports();
-    }
-
-    async function escalarParaSub(id) {
-      if (!(await updateReport(id, { current_stage: "SUB", status: "Em análise", escalated_to: "Subcomando" }))) return;
-      await loadReports();
-    }
-
-    async function escalarParaCmd(id) {
-      if (!(await updateReport(id, { current_stage: "CMD", status: "Em análise", escalated_to: "Comandante" }))) return;
-      await loadReports();
-    }
-
-    async function resolver(id) {
-      if (!(await updateReport(id, { status: "Resolvido" }))) return;
-      await loadReports();
-    }
-
-    async function arquivar(id) {
-      if (!confirm("Arquivar este registro?")) return;
-      if (!(await updateReport(id, { status: "Arquivado" }))) return;
-      await loadReports();
-    }
-
-    async function escalarPA(id) {
-      const r = allReports.find(x => x.id === id);
-      if (!r) return;
-      if (r.current_stage === "PA") {
-        alert("Já está sob responsabilidade do Praça Auxiliar.");
-        return;
-      }
-      if (!(await updateReport(id, { current_stage: "PA", status: "Em análise", escalated_to: "Praça Auxiliar" }))) return;
-      await loadReports();
-    }
-
-    // Expor algumas funções globalmente para uso inline
-    window.marcarEmAnalise = marcarEmAnalise;
-    window.escalarParaSub = escalarParaSub;
-    window.escalarParaCmd = escalarParaCmd;
-    window.resolver = resolver;
-    window.arquivar = arquivar;
-    window.escalarPA = escalarPA;
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const navBtns = document.querySelectorAll(".nav-btn");
-      const views = document.querySelectorAll(".view");
-      const topbarTitle = document.getElementById("topbar-title");
-      const profileSelect = document.getElementById("profile-select");
-      const companySelect = document.getElementById("company-select");
-
-      // aplica perfil ao formulário (trava companhia se for Alfa/Bravo)
-      function applyProfileToForm() {
-        if (!companySelect) return;
-        if (currentProfile === "alfa") {
-          companySelect.value = "Alfa";
-          companySelect.disabled = true;
-        } else if (currentProfile === "bravo") {
-          companySelect.value = "Bravo";
-          companySelect.disabled = true;
-        } else {
-          companySelect.disabled = false;
-        }
-      }
-
-      // carrega perfil salvo
-      const savedProfile = localStorage.getItem("rota_profile");
-      if (savedProfile === "coordop" || savedProfile === "alfa" || savedProfile === "bravo") {
-        currentProfile = savedProfile;
-        profileSelect.value = savedProfile;
-      } else {
-        currentProfile = "coordop";
-        profileSelect.value = "coordop";
-      }
-      applyProfileToForm();
-
-      profileSelect.addEventListener("change", () => {
-        currentProfile = profileSelect.value;
-        localStorage.setItem("rota_profile", currentProfile);
-        applyProfileToForm();
-        renderTables();
-      });
-
-      navBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-          navBtns.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-
-          const target = btn.getAttribute("data-view");
-          views.forEach(v => v.classList.remove("active"));
-          document.getElementById(target).classList.add("active");
-
-          const labels = {
-            "view-dashboard": "Visão Geral",
-            "view-registros": "Registros",
-            "view-cia-alfa": "Companhia Alfa",
-            "view-cia-bravo": "Companhia Bravo",
-            "view-pa": "Praça Auxiliar",
-            "view-sub": "Subcomando",
-            "view-cmd": "Comandante"
-          };
-          topbarTitle.textContent = labels[target] || "Painel";
-        });
-      });
-
-      const form = document.getElementById("form-novo-registro");
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const officer_name = formData.get("officer_name").trim();
-        const company = formData.get("company");
-        const origin_role = formData.get("origin_role");
-        const description = formData.get("description").trim();
-        const last_updated_by = formData.get("last_updated_by").trim();
-
-        if (!officer_name || !company || !origin_role || !description) {
-          alert("Preencha todos os campos obrigatórios.");
-          return;
-        }
-
-        const payload = {
-          officer_name,
-          company,
-          origin_role,
-          description,
-          current_stage: "PA",  // tudo entra primeiro no PA
-          status: "Pendente",
-          last_updated_by: last_updated_by || origin_role
-        };
-
-        const ok = await createReport(payload);
-        if (!ok) return;
-
-        form.reset();
-        applyProfileToForm();
-        await loadReports();
-      });
-
-      document.getElementById("filter-status").addEventListener("change", renderTables);
-      document.getElementById("filter-company").addEventListener("change", renderTables);
-      document.getElementById("filter-search").addEventListener("input", renderTables);
-      document.getElementById("btn-clear-filters").addEventListener("click", () => {
-        document.getElementById("filter-status").value = "todos";
-        document.getElementById("filter-company").value = "todas";
-        document.getElementById("filter-search").value = "";
-        renderTables();
-      });
-
-      loadReports();
+      switchView(btn.getAttribute("data-view"));
+      document.getElementById("topbar-title").innerText = btn.innerText.trim();
     });
-  </script>
+  });
+
+  // carregar perfil salvo
+  const saved = localStorage.getItem("rota_profile");
+  if (saved) {
+    currentProfile = saved;
+    profileSelect.value = saved;
+  }
+
+  updateCompanyNavByProfile();
+
+  profileSelect.addEventListener("change", () => {
+    currentProfile = profileSelect.value;
+    localStorage.setItem("rota_profile", currentProfile);
+    updateCompanyNavByProfile();
+    renderTables();
+  });
+
+  loadReports();
+});
+</script>
+
 </body>
 </html>
