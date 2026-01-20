@@ -457,15 +457,13 @@
           <div class="topbar-sub">Fluxo: Policial → Praça Auxiliar → Subcomando → Comandante</div>
         </div>
         <div class="topbar-right">
-          Perfil de acesso:<br />
-          <select id="profile-select" class="select" style="width:auto;display:inline-block;margin-top:4px;min-width:190px;">
-            <option value="coordop">Maj Coordop (todas companhias)</option>
-            <option value="alfa">Companhia Alfa</option>
-            <option value="bravo">Companhia Bravo</option>
-          </select>
-          <br />
-          <span class="tag-pill"><strong>Modo</strong> RP Administrativo</span>
-        </div>
+  <div id="user-badge" style="line-height:1.2;">
+    Carregando perfil...
+  </div>
+  <button class="btn sm" id="btn-logout" style="margin-top:8px;">Sair</button>
+  <br />
+  <span class="tag-pill"><strong>Modo</strong> RP Administrativo</span>
+</div>
       </header>
 
       <main class="content">
@@ -540,8 +538,8 @@
                 <div class="field-group">
                   <div class="field-label">Companhia</div>
                   <select class="select" name="company" required id="company-select">
-                    <option value="Alfa">Companhia Alfa</option>
-                    <option value="Bravo">Companhia Bravo</option>
+                    <option value="Caveiras">Companhia Caveiras</option>
+<option value="Boinas Pretas">Companhia Boinas Pretas</option>
                   </select>
                 </div>
                 <div class="field-group">
@@ -759,346 +757,451 @@
   </div>
 
   <script>
-    // --------- SUPABASE CONFIG ---------
-    const SUPABASE_URL = "https://ilonwkgtdszmpcjwlezc.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsb253a2d0ZHN6bXBjandsZXpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5NzQxMDIsImV4cCI6MjA3NTU1MDEwMn0.Cc-BtnHlXaGVCY6T6iXe0QA1tsfc17aX8lswEICvtw0";
+  // --------- SUPABASE CONFIG ---------
+  const SUPABASE_URL = "https://ilonwkgtdszmpcjwlezc.supabase.co";
+  const SUPABASE_KEY = "SUA_ANON_KEY_AQUI"; // mantenha a sua
 
-    const { createClient } = supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let allReports = [];
-    let currentProfile = "coordop";
+  // ====== MAPA DE ACESSO (USER_ID -> FUNCAO/COMPANHIA) ======
+  const USER_ACCESS_MAP = {
+    // PAs
+    "9f03187e-2ffb-4556-9700-2bbec83a3c93": { nome: "PA Caveiras", funcao: "PA", companhia: "CAVEIRAS" },
+    "9a32d9ae-8363-4a2d-b416-d71e19444f58": { nome: "PA Boinas Pretas", funcao: "PA", companhia: "BOINAS_PRETAS" },
 
-    function formatDate(isoString) {
-      if (!isoString) return "-";
-      const d = new Date(isoString);
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const year = d.getFullYear();
-      const hours = String(d.getHours()).padStart(2, "0");
-      const minutes = String(d.getMinutes()).padStart(2, "0");
-      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    // SUB
+    "8a0fa703-c182-4b68-a94b-72a66deda5d7": { nome: "Sub Caveiras", funcao: "SUB", companhia: "CAVEIRAS" },
+    "8b30ba2d-c5f9-46fe-bc04-4932d2417a16": { nome: "Sub Boinas Pretas", funcao: "SUB", companhia: "BOINAS_PRETAS" },
+
+    // COMANDO
+    "ba45c3a0-3ad0-43a3-b4a8-649ceb3657fe": { nome: "Comando Caveiras", funcao: "COMANDO", companhia: "CAVEIRAS" },
+    "9b49d54c-9216-40a9-a455-85b37d4c6d32": { nome: "Comando Boinas Pretas", funcao: "COMANDO", companhia: "BOINAS_PRETAS" },
+
+    // COORDOP (vê tudo)
+    "aaf93228-c68b-4f2e-bdca-8e8e8e9ddbdd": { nome: "Maj Coordop", funcao: "COORDOP", companhia: "TODAS" }
+  };
+
+  let allReports = [];
+  let currentAccess = null; // { nome, funcao, companhia }
+
+  // ====== HELPERS: COMPANHIA (compatível com registros antigos Alfa/Bravo) ======
+  function normalizeCompany(raw) {
+    const v = String(raw || "").trim().toUpperCase();
+
+    if (v === "ALFA" || v === "CAVEIRAS") return "CAVEIRAS";
+    if (v === "BRAVO" || v === "BOINAS PRETAS" || v === "BOINAS_PRETAS") return "BOINAS_PRETAS";
+
+    return v; // fallback
+  }
+
+  function companyLabel(norm) {
+    if (norm === "CAVEIRAS") return "Caveiras";
+    if (norm === "BOINAS_PRETAS") return "Boinas Pretas";
+    return norm;
+  }
+
+  function formatDate(isoString) {
+    if (!isoString) return "-";
+    const d = new Date(isoString);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
+
+  function statusClass(status) {
+    if (status === "Pendente") return "pendente";
+    if (status === "Em análise") return "analise";
+    if (status === "Resolvido") return "resolvido";
+    if (status === "Arquivado") return "arquivado";
+    return "pendente";
+  }
+
+  // ====== AUTH + PERFIL ======
+  async function requireAuthAndLoadAccess() {
+    const { data, error } = await sb.auth.getUser();
+
+    if (error || !data?.user) {
+      window.location.href = "login.html"; // ajuste se seu login tiver outro nome
+      return false;
     }
 
-    function statusClass(status) {
-      if (status === "Pendente") return "pendente";
-      if (status === "Em análise") return "analise";
-      if (status === "Resolvido") return "resolvido";
-      if (status === "Arquivado") return "arquivado";
-      return "pendente";
+    const userId = data.user.id;
+    const access = USER_ACCESS_MAP[userId];
+
+    if (!access) {
+      alert("Seu usuário logou, mas não possui permissão configurada no painel.");
+      return false;
     }
 
-    function filterByProfile(r) {
-      if (currentProfile === "alfa") return r.company === "Alfa";
-      if (currentProfile === "bravo") return r.company === "Bravo";
+    currentAccess = access;
+
+    // badge no topo
+    const badge = document.getElementById("user-badge");
+    if (badge) {
+      const cia = (access.companhia === "TODAS") ? "Todas as companhias" : companyLabel(access.companhia);
+      badge.innerHTML = `
+        <div><strong>${access.nome}</strong></div>
+        <div style="opacity:.85;">Função: ${access.funcao} | Cia: ${cia}</div>
+      `;
+    }
+
+    // logout
+    const btnLogout = document.getElementById("btn-logout");
+    if (btnLogout) {
+      btnLogout.addEventListener("click", async () => {
+        await sb.auth.signOut();
+        window.location.href = "login.html";
+      });
+    }
+
+    return true;
+  }
+
+  // ====== REGRAS DE VISUALIZAÇÃO ======
+  function canSeeCompany(normCompany) {
+    if (!currentAccess) return false;
+    if (currentAccess.funcao === "COORDOP") return true;
+    return currentAccess.companhia === normCompany;
+  }
+
+  function filterByAccess(r) {
+    const rc = normalizeCompany(r.company);
+    return canSeeCompany(rc);
+  }
+
+  // ====== REGRAS DE AÇÃO ======
+  function canAction(action, r) {
+    if (!currentAccess) return false;
+
+    const role = currentAccess.funcao;
+    const rc = normalizeCompany(r.company);
+
+    if (role !== "COORDOP" && currentAccess.companhia !== rc) return false;
+
+    if (role === "COORDOP") return true;
+
+    if (action === "escalarPA") return role === "COORDOP"; // só Coordop escala pra PA manualmente
+    if (action === "marcarEmAnalise") return role === "PA" && r.current_stage === "PA";
+    if (action === "escalarParaSub") return role === "PA" && r.current_stage === "PA";
+    if (action === "escalarParaCmd") return role === "SUB" && r.current_stage === "SUB";
+    if (action === "resolver") return (role === "SUB" && r.current_stage === "SUB") || (role === "COMANDO" && r.current_stage === "CMD");
+    if (action === "arquivar") return role === "COMANDO" && r.current_stage === "CMD";
+
+    return false;
+  }
+
+  function setSidebarByAccess() {
+    const role = currentAccess.funcao;
+
+    // botões de função
+    const btnPA = document.querySelector('[data-view="view-pa"]');
+    const btnSUB = document.querySelector('[data-view="view-sub"]');
+    const btnCMD = document.querySelector('[data-view="view-cmd"]');
+
+    if (btnPA) btnPA.style.display = (role === "PA" || role === "COORDOP") ? "" : "none";
+    if (btnSUB) btnSUB.style.display = (role === "SUB" || role === "COORDOP") ? "" : "none";
+    if (btnCMD) btnCMD.style.display = (role === "COMANDO" || role === "COORDOP") ? "" : "none";
+
+    // botões de companhias
+    const navCaveiras = document.getElementById("nav-cia-alfa");   // mantém id antigo, só muda texto no HTML
+    const navBoinas = document.getElementById("nav-cia-bravo");   // mantém id antigo
+
+    if (role === "COORDOP") {
+      if (navCaveiras) navCaveiras.style.display = "";
+      if (navBoinas) navBoinas.style.display = "";
+    } else if (currentAccess.companhia === "CAVEIRAS") {
+      if (navCaveiras) navCaveiras.style.display = "";
+      if (navBoinas) navBoinas.style.display = "none";
+    } else {
+      if (navCaveiras) navCaveiras.style.display = "none";
+      if (navBoinas) navBoinas.style.display = "";
+    }
+  }
+
+  function applyCompanyToForm() {
+    const companySelect = document.getElementById("company-select");
+    if (!companySelect || !currentAccess) return;
+
+    if (currentAccess.funcao === "COORDOP") {
+      companySelect.disabled = false;
+      return;
+    }
+
+    companySelect.disabled = true;
+    companySelect.value = (currentAccess.companhia === "CAVEIRAS") ? "Caveiras" : "Boinas Pretas";
+  }
+
+  function updateDashboardStats(list) {
+    let pendente = 0, analise = 0, resolvido = 0, arquivado = 0;
+    list.forEach(r => {
+      if (r.status === "Pendente") pendente++;
+      else if (r.status === "Em análise") analise++;
+      else if (r.status === "Resolvido") resolvido++;
+      else if (r.status === "Arquivado") arquivado++;
+    });
+    document.getElementById("stat-pendente").textContent = pendente;
+    document.getElementById("stat-analise").textContent = analise;
+    document.getElementById("stat-resolvido").textContent = resolvido;
+    document.getElementById("stat-arquivado").textContent = arquivado;
+  }
+
+  function actionButtonsForMainTable(r) {
+    // tabela "Registros" (geral): mostra só ações possíveis pelo perfil
+    const btns = [];
+
+    if (canAction("escalarPA", r)) btns.push(`<button class="btn sm" onclick="escalarPA('${r.id}')">Escalar</button>`);
+    if (canAction("resolver", r)) btns.push(`<button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>`);
+    if (canAction("arquivar", r)) btns.push(`<button class="btn sm danger" onclick="arquivar('${r.id}')">Arquivar</button>`);
+
+    return btns.length ? btns.join(" ") : `<span style="color:#9ca3af;">-</span>`;
+  }
+
+  function renderTables() {
+    const tbodyReg = document.getElementById("tbody-registros");
+    const tbodyAlfa = document.getElementById("tbody-cia-alfa");   // Caveiras
+    const tbodyBravo = document.getElementById("tbody-cia-bravo"); // Boinas Pretas
+    const tbodyPA = document.getElementById("tbody-pa");
+    const tbodySub = document.getElementById("tbody-sub");
+    const tbodyCmd = document.getElementById("tbody-cmd");
+
+    tbodyReg.innerHTML = "";
+    tbodyAlfa.innerHTML = "";
+    tbodyBravo.innerHTML = "";
+    tbodyPA.innerHTML = "";
+    tbodySub.innerHTML = "";
+    tbodyCmd.innerHTML = "";
+
+    const statusFilter = document.getElementById("filter-status")?.value || "todos";
+    const companyFilterRaw = document.getElementById("filter-company")?.value || "todas";
+    const companyFilter = (companyFilterRaw === "todas") ? "todas" : normalizeCompany(companyFilterRaw);
+    const searchFilter = (document.getElementById("filter-search")?.value || "").toLowerCase();
+
+    const visible = allReports.filter(filterByAccess);
+
+    const filtered = visible.filter(r => {
+      if (statusFilter !== "todos" && r.status !== statusFilter) return false;
+
+      const rc = normalizeCompany(r.company);
+      if (companyFilter !== "todas" && rc !== companyFilter) return false;
+
+      if (searchFilter) {
+        const txt = `${r.officer_name} ${r.description}`.toLowerCase();
+        if (!txt.includes(searchFilter)) return false;
+      }
       return true;
-    }
+    });
 
-    function updateDashboardStats(list) {
-      let pendente = 0, analise = 0, resolvido = 0, arquivado = 0;
-      list.forEach(r => {
-        if (r.status === "Pendente") pendente++;
-        else if (r.status === "Em análise") analise++;
-        else if (r.status === "Resolvido") resolvido++;
-        else if (r.status === "Arquivado") arquivado++;
-      });
-      document.getElementById("stat-pendente").textContent = pendente;
-      document.getElementById("stat-analise").textContent = analise;
-      document.getElementById("stat-resolvido").textContent = resolvido;
-      document.getElementById("stat-arquivado").textContent = arquivado;
-    }
+    // Tabela principal (Registros)
+    filtered.forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatDate(r.created_at)}</td>
+        <td>${r.officer_name}</td>
+        <td>${companyLabel(normalizeCompany(r.company))}</td>
+        <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
+        <td>${r.current_stage}</td>
+        <td>${r.description}</td>
+        <td>${actionButtonsForMainTable(r)}</td>
+      `;
+      tbodyReg.appendChild(tr);
+    });
 
-    function renderTables() {
-      const tbodyReg = document.getElementById("tbody-registros");
-      const tbodyAlfa = document.getElementById("tbody-cia-alfa");
-      const tbodyBravo = document.getElementById("tbody-cia-bravo");
-      const tbodyPA = document.getElementById("tbody-pa");
-      const tbodySub = document.getElementById("tbody-sub");
-      const tbodyCmd = document.getElementById("tbody-cmd");
+    // Companhias (tabelas dedicadas)
+    visible.filter(r => normalizeCompany(r.company) === "CAVEIRAS").forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatDate(r.created_at)}</td>
+        <td>${r.officer_name}</td>
+        <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
+        <td>${r.current_stage}</td>
+        <td>${r.description}</td>
+      `;
+      tbodyAlfa.appendChild(tr);
+    });
 
-      tbodyReg.innerHTML = "";
-      tbodyAlfa.innerHTML = "";
-      tbodyBravo.innerHTML = "";
-      tbodyPA.innerHTML = "";
-      tbodySub.innerHTML = "";
-      tbodyCmd.innerHTML = "";
+    visible.filter(r => normalizeCompany(r.company) === "BOINAS_PRETAS").forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatDate(r.created_at)}</td>
+        <td>${r.officer_name}</td>
+        <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
+        <td>${r.current_stage}</td>
+        <td>${r.description}</td>
+      `;
+      tbodyBravo.appendChild(tr);
+    });
 
-      const statusFilter = document.getElementById("filter-status")?.value || "todos";
-      const companyFilter = document.getElementById("filter-company")?.value || "todas";
-      const searchFilter = (document.getElementById("filter-search")?.value || "").toLowerCase();
-
-      const visible = allReports.filter(filterByProfile);
-
-      const filtered = visible.filter(r => {
-        if (statusFilter !== "todos" && r.status !== statusFilter) return false;
-        if (companyFilter !== "todas" && r.company !== companyFilter) return false;
-        if (searchFilter) {
-          const txt = `${r.officer_name} ${r.description}`.toLowerCase();
-          if (!txt.includes(searchFilter)) return false;
-        }
-        return true;
-      });
-
-      // Tabela principal (Registros)
-      filtered.forEach(r => {
+    // PA (só faz sentido pra PA/Coordop)
+    visible
+      .filter(r => r.current_stage === "PA" && r.status !== "Arquivado")
+      .forEach(r => {
         const tr = document.createElement("tr");
+        const btns = [];
+        if (canAction("marcarEmAnalise", r)) btns.push(`<button class="btn sm" onclick="marcarEmAnalise('${r.id}')">Em análise</button>`);
+        if (canAction("escalarParaSub", r)) btns.push(`<button class="btn sm" onclick="escalarParaSub('${r.id}')">Escalar p/ Sub</button>`);
         tr.innerHTML = `
           <td>${formatDate(r.created_at)}</td>
           <td>${r.officer_name}</td>
-          <td>${r.company}</td>
-          <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
-          <td>${r.current_stage}</td>
-          <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="escalarPA('${r.id}')">Escalar</button>
-            <button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>
-            <button class="btn sm danger" onclick="arquivar('${r.id}')">Arquivar</button>
-          </td>
-        `;
-        tbodyReg.appendChild(tr);
-      });
-
-      // Companhias
-      visible.filter(r => r.company === "Alfa").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
-          <td>${r.current_stage}</td>
-          <td>${r.description}</td>
-        `;
-        tbodyAlfa.appendChild(tr);
-      });
-
-      visible.filter(r => r.company === "Bravo").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
-          <td>${r.current_stage}</td>
-          <td>${r.description}</td>
-        `;
-        tbodyBravo.appendChild(tr);
-      });
-
-      // PA
-      visible.filter(r => r.current_stage === "PA" && r.status !== "Arquivado").forEach(r => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(r.created_at)}</td>
-          <td>${r.officer_name}</td>
-          <td>${r.company}</td>
+          <td>${companyLabel(normalizeCompany(r.company))}</td>
           <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
           <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="marcarEmAnalise('${r.id}')">Em análise</button>
-            <button class="btn sm" onclick="escalarParaSub('${r.id}')">Escalar p/ Sub</button>
-          </td>
+          <td>${btns.length ? btns.join(" ") : `<span style="color:#9ca3af;">-</span>`}</td>
         `;
         tbodyPA.appendChild(tr);
       });
 
-      // SUB
-      visible.filter(r => r.current_stage === "SUB" && r.status !== "Arquivado").forEach(r => {
+    // SUB
+    visible
+      .filter(r => r.current_stage === "SUB" && r.status !== "Arquivado")
+      .forEach(r => {
         const tr = document.createElement("tr");
+        const btns = [];
+        if (canAction("resolver", r)) btns.push(`<button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>`);
+        if (canAction("escalarParaCmd", r)) btns.push(`<button class="btn sm" onclick="escalarParaCmd('${r.id}')">Escalar p/ Cmd</button>`);
         tr.innerHTML = `
           <td>${formatDate(r.created_at)}</td>
           <td>${r.officer_name}</td>
-          <td>${r.company}</td>
+          <td>${companyLabel(normalizeCompany(r.company))}</td>
           <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
           <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>
-            <button class="btn sm" onclick="escalarParaCmd('${r.id}')">Escalar p/ Cmd</button>
-          </td>
+          <td>${btns.length ? btns.join(" ") : `<span style="color:#9ca3af;">-</span>`}</td>
         `;
         tbodySub.appendChild(tr);
       });
 
-      // CMD
-      visible.filter(r => r.current_stage === "CMD" && r.status !== "Arquivado").forEach(r => {
+    // CMD
+    visible
+      .filter(r => r.current_stage === "CMD" && r.status !== "Arquivado")
+      .forEach(r => {
         const tr = document.createElement("tr");
+        const btns = [];
+        if (canAction("resolver", r)) btns.push(`<button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>`);
+        if (canAction("arquivar", r)) btns.push(`<button class="btn sm danger" onclick="arquivar('${r.id}')">Arquivar</button>`);
         tr.innerHTML = `
           <td>${formatDate(r.created_at)}</td>
           <td>${r.officer_name}</td>
-          <td>${r.company}</td>
+          <td>${companyLabel(normalizeCompany(r.company))}</td>
           <td><span class="status-dot ${statusClass(r.status)}"></span>${r.status}</td>
           <td>${r.description}</td>
-          <td>
-            <button class="btn sm" onclick="resolver('${r.id}')">Resolver</button>
-            <button class="btn sm danger" onclick="arquivar('${r.id}')">Arquivar</button>
-          </td>
+          <td>${btns.length ? btns.join(" ") : `<span style="color:#9ca3af;">-</span>`}</td>
         `;
         tbodyCmd.appendChild(tr);
       });
 
-      updateDashboardStats(visible);
+    updateDashboardStats(visible);
+  }
+
+  async function loadReports() {
+    const { data, error } = await sb
+      .from("rota_reports")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("Erro ao carregar registros do Supabase.");
+      return;
     }
 
-    async function loadReports() {
-      const { data, error } = await sb
-        .from("rota_reports")
-        .select("*")
-        .order("created_at", { ascending: false });
+    allReports = data || [];
+    renderTables();
+  }
 
-      if (error) {
-        console.error(error);
-        alert("Erro ao carregar registros do Supabase.");
-        return;
-      }
-
-      allReports = data || [];
-      renderTables();
+  async function createReport(payload) {
+    const { error } = await sb.from("rota_reports").insert(payload);
+    if (error) {
+      console.error(error);
+      alert("Erro ao criar registro.");
+      return false;
     }
+    return true;
+  }
 
-    async function createReport(payload) {
-      const { error } = await sb.from("rota_reports").insert(payload);
-      if (error) {
-        console.error(error);
-        alert("Erro ao criar registro.");
-        return false;
-      }
-      return true;
+  async function updateReport(id, fields) {
+    const { error } = await sb.from("rota_reports").update(fields).eq("id", id);
+    if (error) {
+      console.error(error);
+      alert("Erro ao atualizar registro.");
+      return false;
     }
+    return true;
+  }
 
-    async function updateReport(id, fields) {
-      const { error } = await sb.from("rota_reports").update(fields).eq("id", id);
-      if (error) {
-        console.error(error);
-        alert("Erro ao atualizar registro.");
-        return false;
-      }
-      return true;
-    }
+  // ====== AÇÕES (com guarda de permissão) ======
+  async function marcarEmAnalise(id) {
+    const r = allReports.find(x => x.id === id);
+    if (!r || !canAction("marcarEmAnalise", r)) return alert("Sem permissão.");
+    if (!(await updateReport(id, { status: "Em análise" }))) return;
+    await loadReports();
+  }
 
-    async function marcarEmAnalise(id) {
-      if (!(await updateReport(id, { status: "Em análise" }))) return;
-      await loadReports();
-    }
+  async function escalarParaSub(id) {
+    const r = allReports.find(x => x.id === id);
+    if (!r || !canAction("escalarParaSub", r)) return alert("Sem permissão.");
+    if (!(await updateReport(id, { current_stage: "SUB", status: "Em análise", escalated_to: "Subcomando" }))) return;
+    await loadReports();
+  }
 
-    async function escalarParaSub(id) {
-      if (!(await updateReport(id, { current_stage: "SUB", status: "Em análise", escalated_to: "Subcomando" }))) return;
-      await loadReports();
-    }
+  async function escalarParaCmd(id) {
+    const r = allReports.find(x => x.id === id);
+    if (!r || !canAction("escalarParaCmd", r)) return alert("Sem permissão.");
+    if (!(await updateReport(id, { current_stage: "CMD", status: "Em análise", escalated_to: "Comandante" }))) return;
+    await loadReports();
+  }
 
-    async function escalarParaCmd(id) {
-      if (!(await updateReport(id, { current_stage: "CMD", status: "Em análise", escalated_to: "Comandante" }))) return;
-      await loadReports();
-    }
+  async function resolver(id) {
+    const r = allReports.find(x => x.id === id);
+    if (!r || !canAction("resolver", r)) return alert("Sem permissão.");
+    if (!(await updateReport(id, { status: "Resolvido" }))) return;
+    await loadReports();
+  }
 
-    async function resolver(id) {
-      if (!(await updateReport(id, { status: "Resolvido" }))) return;
-      await loadReports();
-    }
+  async function arquivar(id) {
+    const r = allReports.find(x => x.id === id);
+    if (!r || !canAction("arquivar", r)) return alert("Sem permissão.");
+    if (!confirm("Arquivar este registro?")) return;
+    if (!(await updateReport(id, { status: "Arquivado" }))) return;
+    await loadReports();
+  }
 
-    async function arquivar(id) {
-      if (!confirm("Arquivar este registro?")) return;
-      if (!(await updateReport(id, { status: "Arquivado" }))) return;
-      await loadReports();
-    }
+  async function escalarPA(id) {
+    const r = allReports.find(x => x.id === id);
+    if (!r || !canAction("escalarPA", r)) return alert("Sem permissão.");
+    if (r.current_stage === "PA") return alert("Já está sob responsabilidade do Praça Auxiliar.");
+    if (!(await updateReport(id, { current_stage: "PA", status: "Em análise", escalated_to: "Praça Auxiliar" }))) return;
+    await loadReports();
+  }
 
-    async function escalarPA(id) {
-      const r = allReports.find(x => x.id === id);
-      if (!r) return;
-      if (r.current_stage === "PA") {
-        alert("Já está sob responsabilidade do Praça Auxiliar.");
-        return;
-      }
-      if (!(await updateReport(id, { current_stage: "PA", status: "Em análise", escalated_to: "Praça Auxiliar" }))) return;
-      await loadReports();
-    }
+  // Expor globalmente
+  window.marcarEmAnalise = marcarEmAnalise;
+  window.escalarParaSub = escalarParaSub;
+  window.escalarParaCmd = escalarParaCmd;
+  window.resolver = resolver;
+  window.arquivar = arquivar;
+  window.escalarPA = escalarPA;
 
-    // Expor globalmente
-    window.marcarEmAnalise = marcarEmAnalise;
-    window.escalarParaSub = escalarParaSub;
-    window.escalarParaCmd = escalarParaCmd;
-    window.resolver = resolver;
-    window.arquivar = arquivar;
-    window.escalarPA = escalarPA;
+  document.addEventListener("DOMContentLoaded", () => {
+    (async () => {
+      const ok = await requireAuthAndLoadAccess();
+      if (!ok) return;
 
-    document.addEventListener("DOMContentLoaded", () => {
+      // Navegação
       const navBtns = document.querySelectorAll(".nav-btn");
       const views = document.querySelectorAll(".view");
       const topbarTitle = document.getElementById("topbar-title");
-      const profileSelect = document.getElementById("profile-select");
-      const companySelect = document.getElementById("company-select");
-      const navCiaAlfa = document.getElementById("nav-cia-alfa");
-      const navCiaBravo = document.getElementById("nav-cia-bravo");
 
-      function applyProfileToForm() {
-        if (!companySelect) return;
-        if (currentProfile === "alfa") {
-          companySelect.value = "Alfa";
-          companySelect.disabled = true;
-        } else if (currentProfile === "bravo") {
-          companySelect.value = "Bravo";
-          companySelect.disabled = true;
-        } else {
-          companySelect.disabled = false;
-        }
-      }
-
-      function updateCompanyNavByProfile() {
-        if (currentProfile === "coordop") {
-          navCiaAlfa.style.display = "";
-          navCiaBravo.style.display = "";
-          return;
-        }
-
-        if (currentProfile === "alfa") {
-          navCiaAlfa.style.display = "";
-          navCiaBravo.style.display = "none";
-
-          if (document.getElementById("view-cia-bravo").classList.contains("active")) {
-            document.getElementById("view-cia-bravo").classList.remove("active");
-            document.getElementById("view-cia-alfa").classList.add("active");
-
-            navBtns.forEach(b => b.classList.remove("active"));
-            navCiaAlfa.classList.add("active");
-            topbarTitle.textContent = "Companhia Alfa";
-          }
-          return;
-        }
-
-        if (currentProfile === "bravo") {
-          navCiaAlfa.style.display = "none";
-          navCiaBravo.style.display = "";
-
-          if (document.getElementById("view-cia-alfa").classList.contains("active")) {
-            document.getElementById("view-cia-alfa").classList.remove("active");
-            document.getElementById("view-cia-bravo").classList.add("active");
-
-            navBtns.forEach(b => b.classList.remove("active"));
-            navCiaBravo.classList.add("active");
-            topbarTitle.textContent = "Companhia Bravo";
-          }
-        }
-      }
-
-      // carrega perfil salvo
-      const savedProfile = localStorage.getItem("rota_profile");
-      if (savedProfile === "coordop" || savedProfile === "alfa" || savedProfile === "bravo") {
-        currentProfile = savedProfile;
-        profileSelect.value = savedProfile;
-      } else {
-        currentProfile = "coordop";
-        profileSelect.value = "coordop";
-      }
-      applyProfileToForm();
-      updateCompanyNavByProfile();
-
-      profileSelect.addEventListener("change", () => {
-        currentProfile = profileSelect.value;
-        localStorage.setItem("rota_profile", currentProfile);
-        applyProfileToForm();
-        updateCompanyNavByProfile();
-        renderTables();
-      });
+      // Ajusta sidebar e formulário conforme acesso
+      setSidebarByAccess();
+      applyCompanyToForm();
 
       navBtns.forEach(btn => {
         btn.addEventListener("click", () => {
+          if (btn.style.display === "none") return;
+
           navBtns.forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
 
@@ -1109,8 +1212,8 @@
           const labels = {
             "view-dashboard": "Visão Geral",
             "view-registros": "Registros",
-            "view-cia-alfa": "Companhia Alfa",
-            "view-cia-bravo": "Companhia Bravo",
+            "view-cia-alfa": "Companhia Caveiras",
+            "view-cia-bravo": "Companhia Boinas Pretas",
             "view-pa": "Praça Auxiliar",
             "view-sub": "Subcomando",
             "view-cmd": "Comandante"
@@ -1119,19 +1222,30 @@
         });
       });
 
+      // Form
       const form = document.getElementById("form-novo-registro");
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
-        const officer_name = formData.get("officer_name").trim();
-        const company = formData.get("company");
-        const origin_role = formData.get("origin_role");
-        const description = formData.get("description").trim();
-        const last_updated_by = formData.get("last_updated_by").trim();
+
+        const officer_name = String(formData.get("officer_name") || "").trim();
+        const company = String(formData.get("company") || "");
+        const origin_role = String(formData.get("origin_role") || "");
+        const description = String(formData.get("description") || "").trim();
+        const last_updated_by = String(formData.get("last_updated_by") || "").trim();
 
         if (!officer_name || !company || !origin_role || !description) {
           alert("Preencha todos os campos obrigatórios.");
           return;
+        }
+
+        // trava companhia se não for coordop
+        if (currentAccess.funcao !== "COORDOP") {
+          const must = (currentAccess.companhia === "CAVEIRAS") ? "Caveiras" : "Boinas Pretas";
+          if (company !== must) {
+            alert("Companhia inválida para seu perfil.");
+            return;
+          }
         }
 
         const payload = {
@@ -1148,10 +1262,11 @@
         if (!ok) return;
 
         form.reset();
-        applyProfileToForm();
+        applyCompanyToForm();
         await loadReports();
       });
 
+      // Filtros
       document.getElementById("filter-status").addEventListener("change", renderTables);
       document.getElementById("filter-company").addEventListener("change", renderTables);
       document.getElementById("filter-search").addEventListener("input", renderTables);
@@ -1162,8 +1277,9 @@
         renderTables();
       });
 
-      loadReports();
-    });
-  </script>
+      await loadReports();
+    })();
+  });
+</script>
 </body>
 </html>
